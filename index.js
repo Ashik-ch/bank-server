@@ -1,9 +1,13 @@
 const express = require('express')
 const ds = require('./dataservice')  //export express
+const trans = require('./transaction')
 
 //app creation
 const app = express()
 app.use(express.json())
+
+
+
 
 //resolving http reqs
 app.get('/get', (req, res) => {
@@ -14,6 +18,10 @@ app.post('/post', (req, res) => {
     res.send("This  is a post methd")
 })
 
+
+
+
+
 // register api call
 app.post('/register', (req, res) => {
     const result = ds.register(req.body.acno, req.body.password, req.body.uname)
@@ -23,7 +31,7 @@ app.post('/register', (req, res) => {
 })
 
 //login
-app.post('/login',(req, res)=>{
+app.post('/login', (req, res) => {
     const result = ds.login(req.body.acno, req.body.password)
     if (result) {
         res.status(result.statuscode).json(result)
@@ -33,16 +41,23 @@ app.post('/login',(req, res)=>{
 
 ///Deposit
 app.post('/deposit', (req, res) => {
-    const result = ds.deposit(req.body.acno, req.body.password, req.body.amount)
+    const result = trans.deposit(req.body.acno, req.body.password, req.body.amt)
     if (result) {
         res.status(result.statuscode).json(result)
     }
 })
 
 
-//Withdrawn
+//Withdraw
 app.post('/withdraw', (req, res) => {
-    const result = ds.withdraw(req.body.acno, req.body.password, req.body.amount)
+    const result = trans.withdraw(req.body.acno, req.body.password, req.body.amt)
+    if (result) {
+        res.status(result.statuscode).json(result)
+    }
+})
+
+app.post('/transaction', (req, res) => {
+    const result = trans.transaction(req.body.acno)
     if (result) {
         res.status(result.statuscode).json(result)
     }
@@ -51,6 +66,8 @@ app.post('/withdraw', (req, res) => {
 
 
 
-app.listen(3001, () => {
-    console.log("Server listening to port number 3001");
+
+
+app.listen(3004, () => {
+    console.log("Server listening to port number 3004");
 })
