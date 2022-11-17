@@ -1,11 +1,29 @@
 const express = require('express')
 const ds = require('./dataservice')  //export express
 const trans = require('./transaction')
+const jwt = require("jsonwebtoken")
 
 //app creation
 const app = express()
 app.use(express.json())
 
+const jwtmiddleware = ((req, res, next) => {
+
+    try {
+        const token = req.headers["x-access-token"]
+        const data = jwt.verify(token, "supersecretkey@123")
+        if (req.body.acno == data.currentaccountnum) {
+            next()
+        }
+    }
+
+    catch {
+        return {
+            statuscode: 400,
+            status: false, message: "login first"
+        }
+    }
+})
 
 
 
@@ -13,6 +31,13 @@ app.use(express.json())
 app.get('/get', (req, res) => {
     res.status(405).send("This  is a get methd")   //status code (400)
 })
+
+
+const appMiddleware = (req, res, next) => {
+    console.log("application specific middle")
+    next()
+}
+app.use(appMiddleware)
 
 app.post('/post', (req, res) => {
     res.send("This  is a post methd")
@@ -40,7 +65,7 @@ app.post('/login', (req, res) => {
 
 
 ///Deposit
-app.post('/deposit', (req, res) => {
+app.post('/deposit', jwtmiddleware, (req, res) => {
     const result = trans.deposit(req.body.acno, req.body.password, req.body.amt)
     if (result) {
         res.status(result.statuscode).json(result)
@@ -49,7 +74,7 @@ app.post('/deposit', (req, res) => {
 
 
 //Withdraw
-app.post('/withdraw', (req, res) => {
+app.post('/withdraw',jwtmiddleware, (req, res) => {
     const result = trans.withdraw(req.body.acno, req.body.password, req.body.amt)
     if (result) {
         res.status(result.statuscode).json(result)
@@ -68,6 +93,6 @@ app.post('/transaction', (req, res) => {
 
 
 
-app.listen(3004, () => {
-    console.log("Server listening to port number 3004");
+app.listen(3003, () => {
+    console.log("Server listening to port number 3003");
 })
