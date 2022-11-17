@@ -2,10 +2,21 @@ const express = require('express')
 const ds = require('./dataservice')  //export express
 const trans = require('./transaction')
 const jwt = require("jsonwebtoken")
+const cors=require('cors')
 
 //app creation
 const app = express()
 app.use(express.json())
+
+app.use(cors({
+    orgin:'http://localhost:52087/'
+}))
+
+const appMiddleware = (req, res, next) => {
+    console.log("application specific middle")
+    next()
+}
+app.use(appMiddleware)
 
 const jwtmiddleware = ((req, res, next) => {
 
@@ -33,11 +44,7 @@ app.get('/get', (req, res) => {
 })
 
 
-const appMiddleware = (req, res, next) => {
-    console.log("application specific middle")
-    next()
-}
-app.use(appMiddleware)
+
 
 app.post('/post', (req, res) => {
     res.send("This  is a post methd")
@@ -49,10 +56,13 @@ app.post('/post', (req, res) => {
 
 // register api call
 app.post('/register', (req, res) => {
-    const result = ds.register(req.body.acno, req.body.password, req.body.uname)
-    if (result) {
-        res.status(result.statuscode).json(result)
-    }
+    ds.register(req.body.acno, req.body.password, req.body.uname)
+    .then(reguser=>{
+        if (reguser) {
+            res.status(reguser.statuscode).json(reguser)
+        }
+    })
+    
 })
 
 //login
@@ -74,7 +84,7 @@ app.post('/deposit', jwtmiddleware, (req, res) => {
 
 
 //Withdraw
-app.post('/withdraw',jwtmiddleware, (req, res) => {
+app.post('/withdraw', jwtmiddleware, (req, res) => {
     const result = trans.withdraw(req.body.acno, req.body.password, req.body.amt)
     if (result) {
         res.status(result.statuscode).json(result)
@@ -93,6 +103,6 @@ app.post('/transaction', (req, res) => {
 
 
 
-app.listen(3003, () => {
-    console.log("Server listening to port number 3003");
+app.listen(3004, () => {
+    console.log("Server listening to port number 3004");
 })

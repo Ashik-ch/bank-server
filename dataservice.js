@@ -1,36 +1,55 @@
 const jwt = require('jsonwebtoken')
+const dbs = require('./dbs')
 
-database = {
-    1000: { acno: 1000, uname: "Ashik", password: 1000, Balance: 10000, transaction: [] }
-}
+// database = {
+//     1000: { acno: 1000, uname: "Ashik", password: 1000, Balance: 10000, transaction: [] }
+// }
 
 
 const register = (acno, pswd, uname) => {
 
-    if (acno in database) {
-        uname = database[acno]["uname"]
-        return {
-            "statuscode": 422,
-            "status": false,
-            "message": "User Already Exist",
-            uname
+
+    // if (acno in database) {      //local database
+    //     uname = database[acno]["uname"]
+
+    return dbs.User.findOne({ acno })
+        .then(reguser => {
+            if (reguser) {
+                console.log("usrefd:",reguser);
+                return {
+                    "statuscode": 422,
+                    "status": false,
+                    "message": "User Already Exist",
+                    uname
+                }
+
+            } else {
+                // database[acno] = {
+                //     "acno": acno,
+                //     'password': pswd,
+                //     "uname": uname,
+                //     Balance: 0
+                const newuser = new dbs.User({
+                    acno,
+                    uname,
+                    pswd,
+                    Balance: 0,
+                    transaction: []
+                })
+                newuser.save()    //saving into database
+                // console.log("database", )
+                return {
+                    "statuscode": 200,
+                    "status": true,
+                    uname,
+                    "message": "User created succcesfully"
+                }
+            }
         }
-    } else {
-        database[acno] = {
-            "acno": acno,
-            'password': pswd,
-            "uname": uname,
-            Balance: 0
-        }
-        console.log("database", database)
-        return {
-            "statuscode": 200,
-            "status": true,
-            uname,
-            "message": "User created succcesfully"
-        }
-    }
+  )
+
 }
+
 
 
 ///Login
@@ -73,4 +92,4 @@ const login = (acno, password) => {
 
 
 
-module.exports = { register, login, database }
+module.exports = { register, login }
