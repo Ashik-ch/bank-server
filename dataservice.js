@@ -5,24 +5,17 @@ const dbs = require('./dbs')
 //     1000: { acno: 1000, uname: "Ashik", password: 1000, Balance: 10000, transaction: [] }
 // }
 
-
-const register = (acno, pswd, uname) => {
-
-
-    // if (acno in database) {      //local database
-    //     uname = database[acno]["uname"]
-
+const register = (acno, password, uname) => {
     return dbs.User.findOne({ acno })
         .then(reguser => {
             if (reguser) {
-                console.log("usrefd:",reguser);
+                console.log("usrefd:", reguser);
                 return {
                     "statuscode": 422,
                     "status": false,
                     "message": "User Already Exist",
                     uname
                 }
-
             } else {
                 // database[acno] = {
                 //     "acno": acno,
@@ -32,11 +25,11 @@ const register = (acno, pswd, uname) => {
                 const newuser = new dbs.User({
                     acno,
                     uname,
-                    pswd,
-                    Balance: 0,
+                    password,
+                    balance: 0,
                     transaction: []
                 })
-                newuser.save()    //saving into database
+                newuser.save()    //saving i nto database
                 // console.log("database", )
                 return {
                     "statuscode": 200,
@@ -45,9 +38,7 @@ const register = (acno, pswd, uname) => {
                     "message": "User created succcesfully"
                 }
             }
-        }
-  )
-
+        })
 }
 
 
@@ -55,32 +46,44 @@ const register = (acno, pswd, uname) => {
 ///Login
 
 const login = (acno, password) => {
-    if (acno in database) {
-        // if (password == database[acno]['password']) {
-        //     uname = database[acno]['uname']
-        var username = database[acno]["uname"]
-        var accountnumber = database[acno]["acno"]
-        const token = jwt.sign({
-            currentaccountnum: acno
-        }, "supersecretkey@123")
+    return dbs.User.findOne({ "acno":acno, "password":password })
+        .then(user => {
+            // console.log("logger:", user)
+            if (user) {
+                currentname = user.uname
+                currentaccountnum=acno
 
+                // if (acno in database) {
+                // if (password == database[acno]['password']) {
+                //     uname = database[acno]['uname']
+                // var username = database[acno]["uname"]
+                // var accountnumber = database[acno]["acno"]
 
-        return {
-            "statuscode": 200,
-            "status": true,
-            username,
-            accountnumber,
-            token,
-            "message": "Login succcesful",
-        }
-    } else {
-        return {
-            "statuscode": 400,
-            "status": false,
-            "message": "Incorect Password"
-        }
-    }
+                ///token creation
+              
+                const token = jwt.sign({
+                    currentaccountnum: acno
+                }, "supersecretkey@123")
+
+                return {
+                    "statuscode": 200,
+                    "status": true,
+                    currentname,
+                    currentaccountnum ,
+                    token,
+                    message: "Login succcesful"
+                }
+            }
+        else {
+                return {
+                    "statuscode": 400,
+                    "status": false,
+                    "message": "Incorect Password"
+                }
+            }
+        })
 }
+
 // else {
 //     return {
 //         "statuscode": 400,

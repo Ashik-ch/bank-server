@@ -1,87 +1,106 @@
-const ds = require('./dataservice')  //import express
-let database = ds.database
+// const ds = require('./dataservice')  //import express
+const dbs = require("./dbs")
 
 
-const deposit = (acno, password, amt) => {
-    if (acno in database) {
-        if (password == database[acno]["password"]) {
-            bal = database[acno]["Balance"] = database[acno]["Balance"] + amt
-            database[acno]['transaction'].push ({      // for transaction history
-            "mode": "online",
-            "Amount": amt,
-            "balance": bal
-            })
+const deposit = (acno, password, amount) => {
+    // if (acno in database) {
+    //     if (password == database[acno]["password"]) {
+    //         bal = database[acno]["Balance"] = database[acno]["Balance"] + amount
+    //         database[acno]['transaction'].push ({      // for transaction history
 
-            return {
-                statuscode: 202,
-                status: true,
-                "msg": "amount Deposited",
-                amt,
-                bal
+    var amount = parseInt(amount)
+    return dbs.User.findOne({ acno, password })
+
+        .then(user => {
+            console.log("USER", user)
+            if (user) {
+                user.balance += amount
+                user.transaction.push({
+                    "type": "Deposit",
+                    "mode": "online",
+                    "Amount": amount
+                    // "balance": user.balace
+
+                })
+                user.save()
+
+
+                return {
+                    statuscode: 202,
+                    status: true,
+                    "msg": `amount ${amount} Deposited, Balance: ${user.balance}`,
+                    amount
+                    // balance
+                }
+
+            } else {
+                return {
+                    "statuscode": 401,
+                    "status": false,
+                    "message": "inncorrect password"
+                }
             }
-
-        } else {
-            return {
-                "statuscode": 401,
-                "status": false,
-                "message": "inncorrect password"
-            }
-        }
-    }
-    else {
-        return {
-            "statuscode": 405,
-            "status": false,
-            "message": "No such user"
-        }
-    }
+        })
 }
 
-const withdraw = (acno, password, amt) => {
-    if (acno in database) {
-        if (password == database[acno]["password"]) {
-            bal = database[acno]["Balance"] = Number(database[acno]["Balance"]) - Number(amt)
-            database[acno]['transaction'].push({
-                "mode": "online",
-                "Amount": amt,
-                "balance": bal
-            })
+// else {
+// return {
+//     "statuscode": 405,
+//     "status": false,
+//     "message": "No such user"
+// }
 
-            return {
-                statuscode: 201,
-                status: true,
-                "msg": "Amount Withdrawn",
-                amt,
-                bal
+const withdraw = (acno, password, amount) => {
+    var amount = parseInt(amount)
+    return dbs.User.findOne({ acno, password })
+
+        .then(user => {
+            console.log("USER", user)
+            if (user) {
+                user.balance -= amount
+                user.transaction.push({
+                    "type": "Deposit",
+                    "mode": "online",
+                    "Amount": amount,
+                    // "balance": 0
+
+                })
+                user.save()
+
+
+                return {
+                    statuscode: 202,
+                    status: true,
+                    "msg": `amount ${amount} withdrawed, Balance: ${user.balance}`,
+                    amount,
+                    // balance
+                }
+
+            } else {
+                return {
+                    "statuscode": 401,
+                    "status": false,
+                    "message": "incorrect password"
+                }
             }
-        } else {
-            return {
-                "statuscode": 401,
-                "status": false,
-                "message": "Incorrect Password"
-            }
-        }
-    } else {
-        return {
-            "statuscode": 451,
-            "status": false,
-            "message": "No such user"
-        }
-    }
+        })
 }
-
 
 
 
 const transaction = (acno) => {
-    database = ds.database
-    if (acno in database) {
-        return {
-            "statuscode": 200,
-            "status": true,
-            transaction: database[acno]['transaction']
-        }
-    }
+    return dbs.User.findOne({ acno })
+        .then(data => {
+            if (data) {
+
+                return {
+                    "statuscode": 200,
+                    "status": true,
+                    transaction: database[acno]['transaction']
+                }
+
+            }
+        })
 }
 
 
@@ -98,4 +117,4 @@ const transaction = (acno) => {
 
 
 
-module.exports = { deposit, withdraw,transaction }
+module.exports = { deposit, withdraw, transaction }

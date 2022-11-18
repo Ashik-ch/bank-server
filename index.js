@@ -2,14 +2,14 @@ const express = require('express')
 const ds = require('./dataservice')  //export express
 const trans = require('./transaction')
 const jwt = require("jsonwebtoken")
-const cors=require('cors')
+const cors = require('cors')
 
 //app creation
 const app = express()
 app.use(express.json())
 
 app.use(cors({
-    orgin:'http://localhost:52087/'
+    orgin: 'http://localhost:4200/'
 }))
 
 const appMiddleware = (req, res, next) => {
@@ -57,45 +57,58 @@ app.post('/post', (req, res) => {
 // register api call
 app.post('/register', (req, res) => {
     ds.register(req.body.acno, req.body.password, req.body.uname)
-    .then(reguser=>{
-        if (reguser) {
-            res.status(reguser.statuscode).json(reguser)
-        }
-    })
-    
+        .then(reguser => {
+            if (reguser) {
+                res.status(reguser.statuscode).json(reguser)
+            }
+        })
+
 })
 
 //login
 app.post('/login', (req, res) => {
-    const result = ds.login(req.body.acno, req.body.password)
-    if (result) {
-        res.status(result.statuscode).json(result)
-    }
+
+    ds.login(req.body.acno, req.body.password)
+        .then(loger => {
+            if (loger) {
+                res.status(loger.statuscode).json(loger)
+            }
+        })
 })
 
 
 ///Deposit
 app.post('/deposit', jwtmiddleware, (req, res) => {
-    const result = trans.deposit(req.body.acno, req.body.password, req.body.amt)
-    if (result) {
-        res.status(result.statuscode).json(result)
-    }
+    trans.deposit(req.body.acno, req.body.password, req.body.amount)
+        .then(result => {
+            if (result) {
+                res.status(result.statuscode).json(result)
+
+            }
+        })
+
 })
 
 
 //Withdraw
 app.post('/withdraw', jwtmiddleware, (req, res) => {
-    const result = trans.withdraw(req.body.acno, req.body.password, req.body.amt)
-    if (result) {
-        res.status(result.statuscode).json(result)
-    }
+    trans.withdraw(req.body.acno, req.body.password, req.body.amount)
+        .then(result => {
+            if (result) {
+                res.status(result.statuscode).json(result)
+
+            }
+        })
 })
 
 app.post('/transaction', (req, res) => {
     const result = trans.transaction(req.body.acno)
-    if (result) {
-        res.status(result.statuscode).json(result)
-    }
+        .then(result => {
+            if (result) {
+                res.status(result.statuscode).json(result)
+
+            }
+        })
 })
 
 
