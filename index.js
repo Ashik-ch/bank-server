@@ -96,7 +96,6 @@ app.post('/withdraw', jwtmiddleware, (req, res) => {
         .then(result => {
             if (result) {
                 res.status(result.statuscode).json(result)
-
             }
         })
 })
@@ -107,6 +106,17 @@ app.post('/transaction', (req, res) => {
             if (result) {
                 res.status(result.statuscode).json(result)
 
+            }
+        })
+})
+
+
+app.delete('/delete/:acno', (req, res) => {
+    trans.deleteac(req.params.acno)
+        .then(result => {
+            console.log("DELETE:", result);
+            if (result) {
+                res.status(result.statuscode).json(result)
             }
         })
 })

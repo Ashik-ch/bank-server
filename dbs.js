@@ -1,21 +1,3 @@
-// const mongoose=require('mongoose')
-
-// state connection string
-// mongoose.connect('mongodb://localhost:27017/BANKAPP',{useNewUrlParser:true})
-
-//model creation
-// const User=mongoose.model('User',{
-//     acno:Number,
-//     name:String,
-//     pass:String,
-//     balance:Number,
-//     transaction:Array
-// })
-
-// module.exports={User}
-
-
-
 const mongoose = require('mongoose')
 
 // mongoose.connect('mongodb://localhost:27017/BANK',{

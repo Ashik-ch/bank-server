@@ -18,8 +18,9 @@ const deposit = (acno, password, amount) => {
                 user.transaction.push({
                     "type": "Deposit",
                     "mode": "online",
-                    "Amount": amount
-                    // "balance": user.balace
+                    "amount": amount,
+                    time: new Date(),
+                    "balance": user.balance
 
                 })
                 user.save()
@@ -28,7 +29,7 @@ const deposit = (acno, password, amount) => {
                 return {
                     statuscode: 202,
                     status: true,
-                    "msg": `amount ${amount} Deposited, Balance: ${user.balance}`,
+                    "message": `amount ${amount} Deposited, Balance: ${user.balance}`,
                     amount
                     // balance
                 }
@@ -43,12 +44,6 @@ const deposit = (acno, password, amount) => {
         })
 }
 
-// else {
-// return {
-//     "statuscode": 405,
-//     "status": false,
-//     "message": "No such user"
-// }
 
 const withdraw = (acno, password, amount) => {
     var amount = parseInt(amount)
@@ -59,10 +54,12 @@ const withdraw = (acno, password, amount) => {
             if (user) {
                 user.balance -= amount
                 user.transaction.push({
-                    "type": "Deposit",
+                    "type": "withdraw",
                     "mode": "online",
-                    "Amount": amount,
-                    // "balance": 0
+                    "amount": amount,
+                    time: new Date(),
+                    "balance": user.balance
+
 
                 })
                 user.save()
@@ -71,7 +68,7 @@ const withdraw = (acno, password, amount) => {
                 return {
                     statuscode: 202,
                     status: true,
-                    "msg": `amount ${amount} withdrawed, Balance: ${user.balance}`,
+                    "message": `amount ${amount} withdrawed, Balance: ${user.balance}`,
                     amount,
                     // balance
                 }
@@ -96,9 +93,23 @@ const transaction = (acno) => {
                 return {
                     "statuscode": 200,
                     "status": true,
-                    transaction: database[acno]['transaction']
+                    transaction: data.transaction
                 }
 
+            }
+        })
+}
+
+const deleteac = (acno) => {
+    return dbs.User.deleteOne({ acno })
+        .then(user => {
+            if (user) {
+                return {
+                    statuscode: 203,
+                    "status": true,
+                    "acno": acno
+
+                }
             }
         })
 }
@@ -111,10 +122,4 @@ const transaction = (acno) => {
 
 
 
-
-
-
-
-
-
-module.exports = { deposit, withdraw, transaction }
+module.exports = { deposit, withdraw, transaction,deleteac }

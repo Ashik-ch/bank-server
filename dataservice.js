@@ -17,11 +17,6 @@ const register = (acno, password, uname) => {
                     uname
                 }
             } else {
-                // database[acno] = {
-                //     "acno": acno,
-                //     'password': pswd,
-                //     "uname": uname,
-                //     Balance: 0
                 const newuser = new dbs.User({
                     acno,
                     uname,
@@ -29,13 +24,14 @@ const register = (acno, password, uname) => {
                     balance: 0,
                     transaction: []
                 })
-                newuser.save()    //saving i nto database
-                // console.log("database", )
+                newuser.save() //saving i nto database
+
                 return {
                     "statuscode": 200,
                     "status": true,
-                    uname,
-                    "message": "User created succcesfully"
+                    message: "User created succcesfully",
+                    uname
+                    // message: "User created succcesfully"
                 }
             }
         })
@@ -46,12 +42,12 @@ const register = (acno, password, uname) => {
 ///Login
 
 const login = (acno, password) => {
-    return dbs.User.findOne({ "acno":acno, "password":password })
+    return dbs.User.findOne({ "acno": acno, "password": password })
         .then(user => {
             // console.log("logger:", user)
             if (user) {
                 currentname = user.uname
-                currentaccountnum=acno
+                currentaccountnum = acno
 
                 // if (acno in database) {
                 // if (password == database[acno]['password']) {
@@ -60,7 +56,7 @@ const login = (acno, password) => {
                 // var accountnumber = database[acno]["acno"]
 
                 ///token creation
-              
+
                 const token = jwt.sign({
                     currentaccountnum: acno
                 }, "supersecretkey@123")
@@ -69,12 +65,12 @@ const login = (acno, password) => {
                     "statuscode": 200,
                     "status": true,
                     currentname,
-                    currentaccountnum ,
+                    currentaccountnum,
                     token,
                     message: "Login succcesful"
                 }
             }
-        else {
+            else {
                 return {
                     "statuscode": 400,
                     "status": false,
