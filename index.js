@@ -19,7 +19,6 @@ const appMiddleware = (req, res, next) => {
 app.use(appMiddleware)
 
 const jwtmiddleware = ((req, res, next) => {
-
     try {
         const token = req.headers["x-access-token"]
         const data = jwt.verify(token, "supersecretkey@123")
@@ -27,11 +26,11 @@ const jwtmiddleware = ((req, res, next) => {
             next()
         }
     }
-
     catch {
         return {
             statuscode: 400,
-            status: false, message: "login first"
+            status: false,
+            message: "Login First"
         }
     }
 })
@@ -62,8 +61,8 @@ app.post('/register', (req, res) => {
                 res.status(reguser.statuscode).json(reguser)
             }
         })
+    })
 
-})
 
 //login
 app.post('/login', (req, res) => {
